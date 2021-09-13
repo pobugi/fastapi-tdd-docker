@@ -1,6 +1,13 @@
 from tortoise import fields, models
 
 
+class Country(models.Model):
+    name = fields.TextField()
+    region = fields.TextField()
+
+    def __str__(self) -> str:
+        return self.name
+
 class TextSummary(models.Model):
     url = fields.TextField()
     summary = fields.TextField()
