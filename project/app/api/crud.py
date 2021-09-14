@@ -3,8 +3,8 @@ from typing import List, Union
 
 from app.models.pydantic import (
     CountryPayloadSchema,
-    CountryUpdatePayloadSchema,
-    CountryResponseSchema
+    # CountryUpdatePayloadSchema,
+    # CountryResponseSchema
     )
 from app.models.tortoise import Country
 
@@ -12,7 +12,7 @@ from app.models.tortoise import Country
 def get_country_data(country_name):
     api_url = "http://restcountries.eu/rest/v2/name/{}"
     resp = requests.get(api_url.format(country_name))
-    try: 
+    try:
         data = resp.json()[0]
         result = {
             "name": data["name"],
@@ -58,9 +58,10 @@ async def delete(id: int) -> int:
     country = await Country.filter(id=id).first().delete()
     return country
 
+
 async def put(id: int, payload: CountryPayloadSchema) -> Union[dict, None]:
     country = await Country.filter(id=id).update(name=payload.name, region=payload.region)
-    if country: 
+    if country:
         updated_country = await Country.filter(id=id).first().values()
         return updated_country[0]
     return None
