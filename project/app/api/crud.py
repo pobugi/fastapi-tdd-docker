@@ -4,7 +4,8 @@ from typing import List, Union
 
 from app.models.pydantic import (
     CountryPayloadSchema,
-    CountryUpdatePayloadSchema
+    CountryUpdatePayloadSchema,
+    CountryResponseSchema
 ) #CountryResponseSchema, SummaryPayloadSchema, , 
 from app.models.tortoise import Country#, TextSummary
 
