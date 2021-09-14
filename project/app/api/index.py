@@ -10,6 +10,7 @@ router = APIRouter()
 async def index(settings: Settings = Depends(get_settings)):
     return {
         "message": "welcome!",
+        "docs": "/docs",
         "environment": settings.environment,
         "testing": settings.testing
     }

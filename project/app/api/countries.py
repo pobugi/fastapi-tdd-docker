@@ -1,58 +1,64 @@
-from os import name
-from fastapi import APIRouter, Depends
-from pydantic import BaseModel
+from typing import List
+from attr import s
 
+from fastapi import APIRouter, HTTPException
+# from pydantic.types import PaymentCardBrand
 
-from app.config import get_settings, Settings
-from app.api.countries_parser.countries import CountryData
+from app.api import crud
+from app.models.pydantic import (
+    CountryPayloadSchema, 
+    CountryResponseSchema, 
+    CountryUpdatePayloadSchema
+)
+from app.models.tortoise import CountrySchema#, SummarySchema
+
+# from pydantic import BaseModel
+# from app.config import get_settings, Settings
+# from app.api.countries_parser.countries import CountryData
 
 
 router = APIRouter()
 
-# class Country(Model):
-#     id = fields.IntField(pk=True)
-#     name = fields.CharField(100, unique=True)
-#     region = fields.CharField(100)
+@router.post("/", response_model=CountryResponseSchema, status_code=201)
+async def create_country(payload: CountryPayloadSchema) -> CountryResponseSchema:
+    country_id = await crud.post(payload)
 
-
-
-class Country(BaseModel):
-    name: str
-    region: str
-
-countries_obj = CountryData()
-DB = countries_obj.get_all_countries()
-
-@router.get('/countries')
-async def get_countries(settings: Settings = Depends(get_settings)):
-    return {
-        "countries": DB,
-        "environment": settings.environment,
-        "testing": settings.testing
+    response_object = {
+        "id": country_id,
+        "name": payload.name
     }
+    return response_object
 
-@router.get('/countries/{country_id}')
-async def get_country(country_id: int, settings: Settings = Depends(get_settings)):
-    return {
-        "country {}".format(country_id): DB[country_id-1],
-        "environment": settings.environment,
-        "testing": settings.testing
-    }
 
-@router.post('/countries')
-async def create_country(country: Country, settings: Settings = Depends(get_settings)):
-    DB.append(country.dict())
-    return {
-        "countries": DB,
-        "environment": settings.environment,
-        "testing": settings.testing
-    }
+@router.get("/", response_model=List[CountrySchema])
+async def read_all_countries() -> List[CountrySchema]:
+    return await crud.get_all()
 
-@router.delete('/countries/{city_id}')
-async def delete_country(country_id: int, settings: Settings = Depends(get_settings)):
-    DB.pop(country_id-1)
-    return {
-        "countries": DB,
-        "environment": settings.environment,
-        "testing": settings.testing
-    }
+
+@router.get("/{id}/", response_model=CountrySchema)
+async def read_country(id: int) -> CountrySchema:
+    country = await crud.get(id)
+    if not country:
+        raise HTTPException(
+            status_code=404, 
+            detail="Country not found"
+        )
+    return country
+
+
+@router.delete("/{id}/", response_model=CountryResponseSchema)
+async def delete_country(id: int) -> CountryResponseSchema:
+    country = await crud.get(id)
+    if not country:
+        raise HTTPException(status_code=404, detail="Country not found")
+    await crud.delete(id)
+
+    return country
+
+@router.put("/{id}/", response_model=CountrySchema)
+async def update_country(id: int, payload: CountryUpdatePayloadSchema) -> CountrySchema:
+    country = await crud.put(id, payload)
+    if not country:
+        raise HTTPException(status_code=404, detail="Country not found")
+    return country
+
