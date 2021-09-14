@@ -45,4 +45,4 @@ Generate schema via Tortoise:
 
 Test (curl):
 
-        http --json POST http://localhost:8004/summaries/ url=http://testdriven.io
+        http --json POST http://localhost:8004/countries/ name=USA

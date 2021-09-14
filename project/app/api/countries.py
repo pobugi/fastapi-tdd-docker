@@ -10,7 +10,7 @@ from app.models.pydantic import (
     CountryResponseSchema, 
     CountryUpdatePayloadSchema
 )
-from app.models.tortoise import CountrySchema#, SummarySchema
+from app.models.tortoise import CountrySchema
 
 # from pydantic import BaseModel
 # from app.config import get_settings, Settings

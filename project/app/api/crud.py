@@ -1,15 +1,13 @@
 import requests
-# from app.api import summaries, countries
 from typing import List, Union
 
 from app.models.pydantic import (
     CountryPayloadSchema,
     CountryUpdatePayloadSchema,
     CountryResponseSchema
-) #CountryResponseSchema, SummaryPayloadSchema, , 
-from app.models.tortoise import Country#, TextSummary
+    )
+from app.models.tortoise import Country
 
-# from app.api.countries_parser.countries import CountryData
 
 def get_country_data(country_name):
     api_url = "http://restcountries.eu/rest/v2/name/{}"

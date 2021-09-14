@@ -8,12 +8,37 @@ def test_create_country(test_app_with_db):
     '/countries/', 
     data=json.dumps({
       "name": "Russia",
-      "region": "Europe"
     })
     )
-
   assert response.status_code == 201
   assert response.json()["name"] == "Russia"
+
+
+def test_create_country_invalid_json(test_app):
+    response = test_app.post("/countries/", data=json.dumps({}))
+    assert response.status_code == 422
+
+
+def test_read_country(test_app_with_db):
+  response = test_app_with_db.post(
+    "/countries/",
+    data = json.dumps({"name": "Spain"})
+  )
+  country_id = response.json()["id"]
+
+  response = test_app_with_db.get("/countries/{}".format(country_id))
+  response_dict = response.json()
+
+  assert response_dict["created_at"][:4] == '2021'
+  assert response_dict["region"] == "Europe"
+  assert response_dict["capital"] != "Barcelona"
+
+
+def test_read_country_incorrect_id(test_app_with_db, country_id=9999999):
+  response = test_app_with_db.get("/countries/{}".format(country_id))
+  assert response.status_code == 404
+  assert response.json()['detail'] == 'Country not found'
+
 
 def test_read_all_countries(test_app_with_db):
   response = test_app_with_db.post("/countries/", data=json.dumps({"name": "Zimbabwe"}))
